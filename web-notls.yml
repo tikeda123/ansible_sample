@@ -1,0 +1,24 @@
+- name: Configure webserver with nginx
+  hosts: webservers
+  become: True
+  vars:
+    - ansible_sudo_pass: "Ddjp2016"
+  tasks:
+    - name: install nginx repo
+      yum: name=http://nginx.org/packages/centos/7/noarch/RPMS/nginx-release-centos-7-0.el7.ngx.noarch.rpm state=present
+
+    - name: install nginx
+      yum: name=nginx state=present
+
+    - name: nginx config file backup
+      command: cp /etc/nginx/conf.d/default.conf /etc/nginx/conf.d/default_conf.org
+
+    - name: copy nginx config file
+      copy: src=files/nginx.conf dest=/etc/nginx/conf.d/
+
+    - name: copy index.html
+      template: src=templates/index.html.j2 dest=/usr/share/nginx/html/index.html mode=0644
+
+    - name: restart nginx
+      service: name=nginx state=restarted
+
